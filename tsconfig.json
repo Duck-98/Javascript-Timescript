@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "strict": true, //타임 스크립트의 기능을 얼마나 엄격하게 적용해서 사용할 것 인가.
+    "target": "ES5",  
+    "module": "CommonJS",
+    "alwaysStrict": true,
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "sourceMap": true,
+    "downlevelIteration": true
+  } 
+}
