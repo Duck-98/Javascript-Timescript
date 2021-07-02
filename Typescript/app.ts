@@ -36,16 +36,58 @@ const store : Store = {
   feeds: [],
 };
 
+
+
+function applyApiMixins(targetClass: any, baseClasses: any[]): void { //믹스인 함수
+  baseClasses.forEach(baseClass => {
+    Object.getOwnPropertyNames(baseClass.prototype).forEach(name => {
+      const descriptor = Object.getOwnPropertyDescriptor(baseClass.prototype, name);
+      
+      if (descriptor) {
+        Object.defineProperty(targetClass.prototype, name, descriptor);
+      }            
+    });
+  });
+}
+
+class Api{
+    getRequest <AjaxResponse >(url : string) : AjaxResponse {
+    const ajax = new XMLHttpRequest();
+    ajax.open('GET', url, false); 
+    ajax.send();                  
+  
+    return JSON.parse(ajax.response);
+    }
+  }
+
+class NewsFeedApi {
+  getData() : NewsFeed[] {
+    return this.getRequest<NewsFeed[]>(NEWS_URL);
+  }
+}
+
+
+class NewsDetailApi {
+  getData(id :string) : NewsDetail {
+    return this.getRequest<NewsDetail>(CONTENT_URL.replace('@id', id));
+  }
+}
+// getData를 클래스로 상속하게 해줌. * 중복을 없애기 위한 작업. 
+/* <-- class를 사용하지 않고 제네릭을 사용한 경우 -->
 function getData<AjaxResponse>(url : string) : AjaxResponse { //getData -> NewsFeed와 NewsDetail 둘 다 리턴을 해줌. NewsFeed[] | NewsDetail 
   ajax.open('GET', url, false); // <이름> -> 제네릭을 이용하여 호출하는 쪽에서 유형만 명시하면 리턴값(결과값)도 동일하게 나오게 설정을 해줌.
   ajax.send();                  // 이로 인해 타입가드를 사용할 필요가 없어짐. 만약 api의 개수가 적으면 타입가드를 하는게 편할 수 있겠지만 api의 개수가 늘어나면 제네릭을 이용하는 것이 효율적임
   
   return JSON.parse(ajax.response);
-}
+}*/
+interface NewsFeedApi extends Api {};
+interface NewsDetailApi extends Api {};
+applyApiMixins(NewsFeedApi, [Api]); //Api를 NewsFeedApi에 내용을 넘겨주는 함수 (상속의 기능)
+applyApiMixins(NewsDetailApi, [Api]);
 
 function makeFeeds(feeds : NewsFeed[]) : NewsFeed[]{
   for (let i = 0; i < feeds.length; i++) {
-    feeds[i].read = false;
+    feeds[i].read = false;  
   }
 
   return feeds;
@@ -58,8 +100,9 @@ function updateView(html:string) : void{ //리턴 값이 없을 때는 void로 �
     }
 }// 에러를 알려주는 함수(타입카드 코드)
 function newsFeed() : void{
+  const api = new NewsFeedApi();
   let newsFeed : NewsFeed[] = store.feeds;
-  const newsList = [];
+  const newsList = []; 
   let template = `
     <div class="bg-gray-600 min-h-screen">
       <div class="bg-white text-xl">
@@ -86,7 +129,7 @@ function newsFeed() : void{
   `;
 
   if (newsFeed.length === 0) {
-    newsFeed = store.feeds = makeFeeds(getData<NewsFeed[]>(NEWS_URL));
+    newsFeed = store.feeds = makeFeeds(api.getData());
   }
 
   for(let i = (store.currentPage - 1) * 10; i < store.currentPage * 10; i++) {
@@ -120,7 +163,8 @@ function newsFeed() : void{
 
 function newsDetail(): void {
   const id = location.hash.substr(7);
-  const newsContent = getData<NewsDetail>(CONTENT_URL.replace('@id', id))
+  const api = new NewsDetailApi();
+  const newsContent = api.getData(id);
   let template = `
     <div class="bg-gray-600 min-h-screen pb-8">
       <div class="bg-white text-xl">

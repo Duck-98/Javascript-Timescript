@@ -131,13 +131,62 @@ var store = {
   feeds: []
 };
 
-function getData(url) {
-  ajax.open('GET', url, false); // <이름> -> 제네릭을 이용하여 호출하는 쪽에서 유형만 명시하면 리턴값(결과값)도 동일하게 나오게 설정을 해줌.
+function applyApiMixins(targetClass, baseClasses) {
+  baseClasses.forEach(function (baseClass) {
+    Object.getOwnPropertyNames(baseClass.prototype).forEach(function (name) {
+      var descriptor = Object.getOwnPropertyDescriptor(baseClass.prototype, name);
 
-  ajax.send(); // 이로 인해 타입가드를 사용할 필요가 없어짐. 만약 api의 개수가 적으면 타입가드를 하는게 편할 수 있겠지만 api의 개수가 늘어나면 제네릭을 이용하는 것이 효율적임
-
-  return JSON.parse(ajax.response);
+      if (descriptor) {
+        Object.defineProperty(targetClass.prototype, name, descriptor);
+      }
+    });
+  });
 }
+
+var Api =
+/** @class */
+function () {
+  function Api() {}
+
+  Api.prototype.getRequest = function (url) {
+    var ajax = new XMLHttpRequest();
+    ajax.open('GET', url, false);
+    ajax.send();
+    return JSON.parse(ajax.response);
+  };
+
+  return Api;
+}();
+
+var NewsFeedApi =
+/** @class */
+function () {
+  function NewsFeedApi() {}
+
+  NewsFeedApi.prototype.getData = function () {
+    return this.getRequest(NEWS_URL);
+  };
+
+  return NewsFeedApi;
+}();
+
+var NewsDetailApi =
+/** @class */
+function () {
+  function NewsDetailApi() {}
+
+  NewsDetailApi.prototype.getData = function (id) {
+    return this.getRequest(CONTENT_URL.replace('@id', id));
+  };
+
+  return NewsDetailApi;
+}();
+
+;
+;
+applyApiMixins(NewsFeedApi, [Api]); //Api를 NewsFeedApi에 내용을 넘겨주는 함수 (상속의 기능)
+
+applyApiMixins(NewsDetailApi, [Api]);
 
 function makeFeeds(feeds) {
   for (var i = 0; i < feeds.length; i++) {
@@ -157,12 +206,13 @@ function updateView(html) {
 
 
 function newsFeed() {
+  var api = new NewsFeedApi();
   var newsFeed = store.feeds;
   var newsList = [];
   var template = "\n    <div class=\"bg-gray-600 min-h-screen\">\n      <div class=\"bg-white text-xl\">\n        <div class=\"mx-auto px-4\">\n          <div class=\"flex justify-between items-center py-6\">\n            <div class=\"flex justify-start\">\n              <h1 class=\"font-extrabold\">Hacker News</h1>\n            </div>\n            <div class=\"items-center justify-end\">\n              <a href=\"#/page/{{__prev_page__}}\" class=\"text-gray-500\">\n                Previous\n              </a>\n              <a href=\"#/page/{{__next_page__}}\" class=\"text-gray-500 ml-4\">\n                Next\n              </a>\n            </div>\n          </div> \n        </div>\n      </div>\n      <div class=\"p-4 text-2xl text-gray-700\">\n        {{__news_feed__}}        \n      </div>\n    </div>\n  ";
 
   if (newsFeed.length === 0) {
-    newsFeed = store.feeds = makeFeeds(getData(NEWS_URL));
+    newsFeed = store.feeds = makeFeeds(api.getData());
   }
 
   for (var i = (store.currentPage - 1) * 10; i < store.currentPage * 10; i++) {
@@ -177,7 +227,8 @@ function newsFeed() {
 
 function newsDetail() {
   var id = location.hash.substr(7);
-  var newsContent = getData(CONTENT_URL.replace('@id', id));
+  var api = new NewsDetailApi();
+  var newsContent = api.getData(id);
   var template = "\n    <div class=\"bg-gray-600 min-h-screen pb-8\">\n      <div class=\"bg-white text-xl\">\n        <div class=\"mx-auto px-4\">\n          <div class=\"flex justify-between items-center py-6\">\n            <div class=\"flex justify-start\">\n              <h1 class=\"font-extrabold\">Hacker News</h1>\n            </div>\n            <div class=\"items-center justify-end\">\n              <a href=\"#/page/" + store.currentPage + "\" class=\"text-gray-500\">\n                <i class=\"fa fa-times\"></i>\n              </a>\n            </div>\n          </div>\n        </div>\n      </div>\n\n      <div class=\"h-full border rounded-xl bg-white m-6 p-4 \">\n        <h2>" + newsContent.title + "</h2>\n        <div class=\"text-gray-400 h-20\">\n          " + newsContent.content + "\n        </div>\n\n        {{__comments__}}\n\n      </div>\n    </div>\n  ";
 
   for (var i = 0; i < store.feeds.length; i++) {
