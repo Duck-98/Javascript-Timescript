@@ -148,9 +148,25 @@ var __extends = this && this.__extends || function () {
   };
 }();
 
+var __values = this && this.__values || function (o) {
+  var s = typeof Symbol === "function" && Symbol.iterator,
+      m = s && o[s],
+      i = 0;
+  if (m) return m.call(o);
+  if (o && typeof o.length === "number") return {
+    next: function next() {
+      if (o && i >= o.length) o = void 0;
+      return {
+        value: o && o[i++],
+        done: !o
+      };
+    }
+  };
+  throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
+};
+
 var NEWS_URL = 'https://api.hnpwa.com/v0/news/1.json';
 var CONTENT_URL = 'https://api.hnpwa.com/v0/item/@id.json';
-var container = document.getElementById('root');
 var store = {
   currentPage: 1,
   feeds: []
@@ -212,12 +228,12 @@ function () {
     var containerElement = document.getElementById(containerId);
 
     if (!containerElement) {
-      throw '최상위 컨테이너가 없어 ui를 진행하지 못합니다.';
+      throw '최상위 컨테이너가 없어 UI를 진행하지 못합니다.';
     }
 
     this.container = containerElement;
-    this.renderTemplate = template;
     this.template = template;
+    this.renderTemplate = template;
     this.htmlList = [];
   }
 
@@ -238,7 +254,7 @@ function () {
   };
 
   View.prototype.setTemplateData = function (key, value) {
-    this.renderTemplate = this.template.replace("{{__" + key + "__}}", value);
+    this.renderTemplate = this.renderTemplate.replace("{{__" + key + "__}}", value);
   };
 
   View.prototype.clearHtmlList = function () {
@@ -252,18 +268,56 @@ var Router =
 /** @class */
 function () {
   function Router() {
-    var routePath = location.hash;
-    window.addEventListener('hashchange', router);
+    window.addEventListener('hashchange', this.route.bind(this)); //바인드 함수를 이용하여 this를 고정시켜줌
 
-    if (routePath === '') {
-      newsFeed();
-    } else if (routePath.indexOf('#/page/') >= 0) {
-      store.currentPage = Number(routePath.substr(7));
-      newsFeed();
-    } else {
-      newsDetail();
-    }
+    this.routeTable = [];
+    this.defaultRoute = null;
   }
+
+  Router.prototype.setDefaultPage = function (page) {
+    this.defaultRoute = {
+      path: '',
+      page: page
+    };
+  };
+
+  Router.prototype.addRoutePath = function (path, page) {
+    this.routeTable.push({
+      path: path,
+      page: page
+    });
+  };
+
+  Router.prototype.route = function () {
+    var e_1, _a;
+
+    var routePath = location.hash;
+
+    if (routePath === '' && this.defaultRoute) {
+      this.defaultRoute.page.render();
+    }
+
+    try {
+      for (var _b = __values(this.routeTable), _c = _b.next(); !_c.done; _c = _b.next()) {
+        var routeInfo = _c.value;
+
+        if (routePath.indexOf(routeInfo.path) >= 0) {
+          routeInfo.page.render();
+          break;
+        }
+      }
+    } catch (e_1_1) {
+      e_1 = {
+        error: e_1_1
+      };
+    } finally {
+      try {
+        if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+      } finally {
+        if (e_1) throw e_1.error;
+      }
+    }
+  };
 
   return Router;
 }();
@@ -276,7 +330,7 @@ function (_super) {
   function NewsFeedView(containerId) {
     var _this = this;
 
-    var template = " \n    <div class=\"bg-gray-600 min-h-screen\">\n      <div class=\"bg-white text-xl\">\n        <div class=\"mx-auto px-4\">\n          <div class=\"flex justify-between items-center py-6\">\n            <div class=\"flex justify-start\">\n              <h1 class=\"font-extrabold\">Hacker News</h1>\n            </div>\n            <div class=\"items-center justify-end\">\n              <a href=\"#/page/{{__prev_page__}}\" class=\"text-gray-500\">\n                Previous\n              </a>\n              <a href=\"#/page/{{__next_page__}}\" class=\"text-gray-500 ml-4\">\n                Next\n              </a>\n            </div>\n          </div> \n        </div>\n      </div>\n      <div class=\"p-4 text-2xl text-gray-700\">\n        {{__news_feed__}}        \n      </div>\n    </div>\n  ";
+    var template = "\n      <div class=\"bg-gray-600 min-h-screen\">\n        <div class=\"bg-white text-xl\">\n          <div class=\"mx-auto px-4\">\n            <div class=\"flex justify-between items-center py-6\">\n              <div class=\"flex justify-start\">\n                <h1 class=\"font-extrabold\">Hacker News</h1>\n              </div>\n              <div class=\"items-center justify-end\">\n                <a href=\"#/page/{{__prev_page__}}\" class=\"text-gray-500\">\n                  Previous\n                </a>\n                <a href=\"#/page/{{__next_page__}}\" class=\"text-gray-500 ml-4\">\n                  Next\n                </a>\n              </div>\n            </div> \n          </div>\n        </div>\n        <div class=\"p-4 text-2xl text-gray-700\">\n          {{__news_feed__}}        \n        </div>\n      </div>\n    ";
     _this = _super.call(this, containerId, template) || this;
     _this.api = new NewsFeedApi(NEWS_URL);
     _this.feeds = store.feeds;
@@ -291,6 +345,8 @@ function (_super) {
   }
 
   NewsFeedView.prototype.render = function () {
+    store.currentPage = Number(location.hash.substr(7) || 1);
+
     for (var i = (store.currentPage - 1) * 10; i < store.currentPage * 10; i++) {
       var _a = this.feeds[i],
           id = _a.id,
@@ -323,11 +379,11 @@ var NewsDetailView =
 function (_super) {
   __extends(NewsDetailView, _super);
 
-  function NewsDetailView(containerID) {
+  function NewsDetailView(containerId) {
     var _this = this;
 
-    var template = "\n      <div class=\"bg-gray-600 min-h-screen pb-8\">\n        <div class=\"bg-white text-xl\">\n          <div class=\"mx-auto px-4\">\n            <div class=\"flex justify-between items-center py-6\">\n              <div class=\"flex justify-start\">\n                <h1 class=\"font-extrabold\">Hacker News</h1>\n              </div>\n              <div class=\"items-center justify-end\">\n                <a href=\"#/page/{{__currentPage__}}\" class=\"text-gray-500\">\n                  <i class=\"fa fa-times\"></i>\n                </a>\n              </div>\n            </div>\n          </div>\n        </div>\n  \n        <div class=\"h-full border rounded-xl bg-white m-6 p-4 \">\n          <h2>{__title__}</h2>\n          <div class=\"text-gray-400 h-20\">\n          {__comments__}}\n          </div>\n  \n          {{__comments__}}\n  \n        </div>\n      </div>\n    ";
-    _this = _super.call(this, containerID, template) || this;
+    var template = "\n      <div class=\"bg-gray-600 min-h-screen pb-8\">\n        <div class=\"bg-white text-xl\">\n          <div class=\"mx-auto px-4\">\n            <div class=\"flex justify-between items-center py-6\">\n              <div class=\"flex justify-start\">\n                <h1 class=\"font-extrabold\">Hacker News</h1>\n              </div>\n              <div class=\"items-center justify-end\">\n                <a href=\"#/page/{{__currentPage__}}\" class=\"text-gray-500\">\n                  <i class=\"fa fa-times\"></i>\n                </a>\n              </div>\n            </div>\n          </div>\n        </div>\n  \n        <div class=\"h-full border rounded-xl bg-white m-6 p-4 \">\n          <h2>{{__title__}}</h2>\n          <div class=\"text-gray-400 h-20\">\n            {{__content__}}\n          </div>\n  \n          {{__comments__}}\n  \n        </div>\n      </div>\n    ";
+    _this = _super.call(this, containerId, template) || this;
     return _this;
   }
 
@@ -344,7 +400,7 @@ function (_super) {
     }
 
     this.setTemplateData('comments', this.makeComment(newsDetail.comments));
-    this.setTemplateData('current', String(store.currentPage));
+    this.setTemplateData('currentPage', String(store.currentPage));
     this.setTemplateData('title', newsDetail.title);
     this.setTemplateData('content', newsDetail.content);
     this.updateView();
@@ -366,7 +422,14 @@ function (_super) {
   return NewsDetailView;
 }(View);
 
-router();
+var router = new Router();
+var newsFeedView = new NewsFeedView('root');
+var newsDetailView = new NewsDetailView('root');
+router.setDefaultPage(newsFeedView);
+router.addRoutePath('/page/', newsFeedView); // /page/에 진입하면 newsFeedView를 호출한다는 의미
+
+router.addRoutePath('/show/', newsDetailView);
+router.route();
 },{}],"../../../../../../opt/homebrew/lib/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
@@ -395,7 +458,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "59825" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "63982" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
