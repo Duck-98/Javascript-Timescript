@@ -27,6 +27,11 @@ interface NewsComment extends News {
   readonly level: number;
 }
 
+interface RouteInfo {
+  path: string;
+  page : View;
+}
+
 const NEWS_URL = 'https://api.hnpwa.com/v0/news/1.json';
 const CONTENT_URL = 'https://api.hnpwa.com/v0/item/@id.json';
 const container: HTMLElement | null = document.getElementById('root');
@@ -99,23 +104,36 @@ class View{
   clearHtmlList():void {
     this.htmlList= [];
   }
+  abstract render():void // 추상메소드 , 자식 메소드에게 render()을 구현하게 하기 위해 사용
 }
 
 class Router{
+  routeTable = RouteInfo[];
+  defaultRoute = RouteInfo | null;
   constructor(){
-   const routePath = location.hash;
-
    window.addEventListener('hashchange', router);
 
-   if (routePath === '') {
-     newsFeed();
-   } else if (routePath.indexOf('#/page/') >= 0) {
-     store.currentPage = Number(routePath.substr(7));
-     newsFeed();
-   } else {
-     newsDetail()
-   }
+   this.routeTable = [];
+   this.defaultRoute = null;
  }
+ setDefaultPage(page:View): void {
+  this.defaultRoute = { path : '', page};
+ }
+ addRouterPath(path: string,page: View):void{
+  this.routeTable.push({path, page})
+ }
+ route(){
+  const routePath = location.hash;
+  if (routePath === '' && this.defaultRoute){ 
+    this.defaultRoute.page.render();
+  }
+  for(const routeInfo of this.routeTable){
+    if(routePath.indexOf(routeInfo.path) >= 0){
+      routeInfo.page.render(); 
+      break;
+    }
+  }
+ } 
 }
 
 class NewsFeedView extends View{
@@ -271,4 +289,10 @@ class NewsDetailView extends View{
     return this.getHtml();
   }
 }
-router();
+const router : Router = new Router();
+const newsFeedView = new NewsFeedView('root');
+const newsDetailView = new NewsDetailView('root');
+router.setDefaultPage(newsFeedView);
+
+router.addRoutePath('/page/', newsFeedView); // /page/에 진입하면 newsFeedView를 호출한다는 의미
+router.addRoutePath('/show/', newsDetailView);
