@@ -5,7 +5,7 @@ export default abstract class View {
     private htmlList: string[];
   
     constructor(containerId: string, template: string) {
-      const containerElement = document.getElementById(containerId);
+      const containerElement: HTMLElement | null = document.getElementById(containerId);
   
       if (!containerElement) {
         throw '최상위 컨테이너가 없어 UI를 진행하지 못합니다.';
@@ -40,6 +40,6 @@ export default abstract class View {
       this.htmlList = [];
     }
   
-    abstract render(): void; // 추상메소드 , 자식 메소드에게 render()을 구현하게 하기 위해 사용
+    abstract render(...params:string[]): void; // 추상메소드 , 자식 메소드에게 render()을 구현하게 하기 위해 사용
   }
   
