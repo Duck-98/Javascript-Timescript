@@ -319,10 +319,14 @@ var Api = /*#__PURE__*/function () {
 
   _createClass(Api, [{
     key: "getRequest",
-    value: function getRequest() {
-      this.ajax.open('GET', this.url, false);
+    value: function getRequest(cb) {
+      var _this = this;
+
+      this.ajax.open('GET', this.url);
+      this.ajax.addEventListener('load', function () {
+        cb(JSON.parse(_this.ajax.response));
+      });
       this.ajax.send();
-      return JSON.parse(this.ajax.response);
     }
   }]);
 
@@ -336,16 +340,16 @@ var NewsFeedApi = /*#__PURE__*/function (_Api) {
 
   var _super = _createSuper(NewsFeedApi);
 
-  function NewsFeedApi() {
+  function NewsFeedApi(url) {
     _classCallCheck(this, NewsFeedApi);
 
-    return _super.apply(this, arguments);
+    return _super.call(this, url);
   }
 
   _createClass(NewsFeedApi, [{
     key: "getData",
-    value: function getData() {
-      return this.getRequest();
+    value: function getData(cb) {
+      return this.getRequest(cb);
     }
   }]);
 
@@ -359,16 +363,16 @@ var NewsDetailApi = /*#__PURE__*/function (_Api2) {
 
   var _super2 = _createSuper(NewsDetailApi);
 
-  function NewsDetailApi() {
+  function NewsDetailApi(url) {
     _classCallCheck(this, NewsDetailApi);
 
-    return _super2.apply(this, arguments);
+    return _super2.call(this, url);
   }
 
   _createClass(NewsDetailApi, [{
     key: "getData",
-    value: function getData() {
-      return this.getRequest();
+    value: function getData(cb) {
+      return this.getRequest(cb);
     }
   }]);
 
@@ -750,7 +754,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "59825" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "63982" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
