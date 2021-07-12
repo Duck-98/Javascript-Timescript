@@ -313,21 +313,31 @@ var Api = /*#__PURE__*/function () {
   function Api(url) {
     _classCallCheck(this, Api);
 
-    this.ajax = new XMLHttpRequest();
+    this.xhr = new XMLHttpRequest();
     this.url = url;
   }
 
   _createClass(Api, [{
-    key: "getRequest",
-    value: function getRequest(cb) {
+    key: "getRequestWithXHR",
+    value: function getRequestWithXHR(cb) {
       var _this = this;
 
-      this.ajax.open('GET', this.url);
-      this.ajax.addEventListener('load', function () {
-        cb(JSON.parse(_this.ajax.response));
+      this.xhr.open('GET', this.url);
+      this.xhr.addEventListener('load', function () {
+        cb(JSON.parse(_this.xhr.response));
       });
-      this.ajax.send();
+      this.xhr.send();
     }
+  }, {
+    key: "getRequestWithPromise",
+    value: function getRequestWithPromise(cb) {
+      fetch(this.url).then(function (response) {
+        return response.json();
+      }).then(cb).catch(function () {
+        console.log('데이터를 불러오지 못했습니다.');
+      });
+    } //fetch api 
+
   }]);
 
   return Api;
@@ -347,9 +357,14 @@ var NewsFeedApi = /*#__PURE__*/function (_Api) {
   }
 
   _createClass(NewsFeedApi, [{
-    key: "getData",
-    value: function getData(cb) {
-      return this.getRequest(cb);
+    key: "getDataWithXHR",
+    value: function getDataWithXHR(cb) {
+      return this.getRequestWithXHR(cb);
+    }
+  }, {
+    key: "getDataWithPromise",
+    value: function getDataWithPromise(cb) {
+      return this.getRequestWithPromise(cb);
     }
   }]);
 
@@ -370,9 +385,14 @@ var NewsDetailApi = /*#__PURE__*/function (_Api2) {
   }
 
   _createClass(NewsDetailApi, [{
-    key: "getData",
-    value: function getData(cb) {
-      return this.getRequest(cb);
+    key: "getDataWithXHR",
+    value: function getDataWithXHR(cb) {
+      return this.getRequestWithXHR(cb);
+    }
+  }, {
+    key: "getDataWithPromise",
+    value: function getDataWithPromise(cb) {
+      return this.getRequestWithPromise(cb);
     }
   }]);
 
@@ -446,23 +466,23 @@ var NewsDetailView = /*#__PURE__*/function (_view_1$default) {
 
     _this.render = function (id) {
       var api = new api_1.NewsDetailApi(config_1.CONTENT_URL.replace('@id', id));
+      api.getDataWithPromise(function (data) {
+        var title = data.title,
+            content = data.content,
+            comments = data.comments;
 
-      var _api$getData = api.getData(),
-          title = _api$getData.title,
-          content = _api$getData.content,
-          comments = _api$getData.comments;
+        _this.store.makeRead(Number(id));
 
-      _this.store.makeRead(Number(id));
+        _this.setTemplateData('currentPage', _this.store.currentPage.toString());
 
-      _this.setTemplateData('currentPage', _this.store.currentPage.toString());
+        _this.setTemplateData('title', title);
 
-      _this.setTemplateData('title', title);
+        _this.setTemplateData('content', content);
 
-      _this.setTemplateData('content', content);
+        _this.setTemplateData('comments', _this.makeComment(comments));
 
-      _this.setTemplateData('comments', _this.makeComment(comments));
-
-      _this.updateView();
+        _this.updateView();
+      });
     };
 
     _this.store = store;
@@ -544,6 +564,16 @@ var NewsFeedView = /*#__PURE__*/function (_view_1$default) {
       var page = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '1';
       _this.store.currentPage = Number(page);
 
+      if (!_this.store.hasFeeds) {
+        _this.api.getDataWithPromise(function (feeds) {
+          _this.store.setFeeds(feeds);
+
+          _this.renderView();
+        });
+      }
+    };
+
+    _this.renderView = function () {
       for (var i = (_this.store.currentPage - 1) * 10; i < _this.store.currentPage * 10; i++) {
         var _this$store$getFeed = _this.store.getFeed(i),
             id = _this$store$getFeed.id,
@@ -554,7 +584,7 @@ var NewsFeedView = /*#__PURE__*/function (_view_1$default) {
             time_ago = _this$store$getFeed.time_ago,
             read = _this$store$getFeed.read;
 
-        _this.addHtml("\n        <div class=\"p-6 ".concat(read ? 'bg-red-500' : 'bg-white', " mt-6 rounded-lg shadow-md transition-colors duration-500 hover:bg-green-100\">\n          <div class=\"flex\">\n            <div class=\"flex-auto\">\n              <a href=\"#/show/").concat(id, "\">").concat(title, "</a>  \n            </div>\n            <div class=\"text-center text-sm\">\n              <div class=\"w-10 text-white bg-green-300 rounded-lg px-0 py-2\">").concat(comments_count, "</div>\n            </div>\n          </div>\n          <div class=\"flex mt-3\">\n            <div class=\"grid grid-cols-3 text-sm text-gray-500\">\n              <div><i class=\"fas fa-user mr-1\"></i>").concat(user, "</div>\n              <div><i class=\"fas fa-heart mr-1\"></i>").concat(points, "</div>\n              <div><i class=\"far fa-clock mr-1\"></i>").concat(time_ago, "</div>\n            </div>  \n          </div>\n        </div>    \n      "));
+        _this.addHtml("\n          <div class=\"p-6 ".concat(read ? 'bg-red-500' : 'bg-white', " mt-6 rounded-lg shadow-md transition-colors duration-500 hover:bg-green-100\">\n            <div class=\"flex\">\n              <div class=\"flex-auto\">\n                <a href=\"#/show/").concat(id, "\">").concat(title, "</a>  \n              </div>\n              <div class=\"text-center text-sm\">\n                <div class=\"w-10 text-white bg-green-300 rounded-lg px-0 py-2\">").concat(comments_count, "</div>\n              </div>\n            </div>\n            <div class=\"flex mt-3\">\n              <div class=\"grid grid-cols-3 text-sm text-gray-500\">\n                <div><i class=\"fas fa-user mr-1\"></i>").concat(user, "</div>\n                <div><i class=\"fas fa-heart mr-1\"></i>").concat(points, "</div>\n                <div><i class=\"far fa-clock mr-1\"></i>").concat(time_ago, "</div>\n              </div>  \n            </div>\n          </div>    \n        "));
       }
 
       _this.setTemplateData('news_feed', _this.getHtml());
@@ -568,11 +598,6 @@ var NewsFeedView = /*#__PURE__*/function (_view_1$default) {
 
     _this.store = store;
     _this.api = new api_1.NewsFeedApi(config_1.NEWS_URL);
-
-    if (!_this.store.hasFeeds) {
-      _this.store.setFeeds(_this.api.getData());
-    }
-
     return _this;
   }
 
@@ -754,7 +779,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "63982" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "59825" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
