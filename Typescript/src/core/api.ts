@@ -1,58 +1,37 @@
-import {NewsFeed, NewsDetail} from '../types';
+import { NEWS_URL, CONTENT_URL } from '../config';
+import { NewsFeed, NewsDetail } from '../types';
 
-export class Api {
-    xhr: XMLHttpRequest;
-    url: string;
-  
-    constructor(url: string) {
-      this.xhr = new XMLHttpRequest();
-      this.url = url;
-    }
-  
-    getRequestWithXHR<AjaxResponse>(cb : (data:AjaxResponse) => void): void{
-      this.xhr.open('GET', this.url);
-      this.xhr.addEventListener('load', ()=> {
-        cb(JSON.parse(this.xhr.response) as AjaxResponse);
-      });
+export default class Api {
+  url: string;
 
-      this.xhr.send();
-      
-    }
-
-    getRequestWithPromise<AjaxResponse>(cb : (data:AjaxResponse) => void): void{
-      fetch(this.url)
-        .then(response => response.json())
-        .then(cb)
-        .catch(() => {
-          console.log('데이터를 불러오지 못했습니다.');
-        })
-      } //fetch api 
-
-      
-      
-    }
-  
-  
-  export class NewsFeedApi extends Api {
-    constructor(url : string){
-      super(url);
-    } 
-    getDataWithXHR(cb:(data:NewsFeed[])=> void): void {
-      return this.getRequestWithXHR<NewsFeed[]>(cb);
-    }
-    getDataWithPromise(cb:(data:NewsFeed[])=> void): void {
-      return this.getRequestWithPromise<NewsFeed[]>(cb);
-    }
+  constructor(url: string) {
+    this.url = url;
   }
-   
-  export class NewsDetailApi extends Api {
-    constructor(url: string){
-      super(url);
-    }
-    getDataWithXHR(cb: (data :NewsDetail)=> void):void  {
-      return this.getRequestWithXHR<NewsDetail>(cb);
-    }
-    getDataWithPromise(cb: (data :NewsDetail)=> void):void  {
-      return this.getRequestWithPromise<NewsDetail>(cb);
-    }
+
+
+async request<AjaxResponse>(): Promise<AjaxResponse>{
+  const response = await fetch(this.url); //fetch api를 리턴하는 것처럼 보여주게 함.
+  return await response.json() as AjaxResponse; //response를 받은 json를 호출
+  //fetch api를 간단하게 바꿈
+  }//비동기 함수로 변환하기위해 async사용
+}
+
+export class NewsFeedApi extends Api {
+  constructor() {
+    super(NEWS_URL);
   }
+
+  async getData(): Promise<NewsFeed[]> {
+    return this.request<NewsFeed[]>();
+  }
+}
+
+export class NewsDetailApi extends Api {
+  constructor(id: string) {
+    super(CONTENT_URL.replace('@id', id));
+  }
+
+  async getData(): Promise<NewsDetail> {
+    return this.request<NewsDetail>();
+  }
+}
