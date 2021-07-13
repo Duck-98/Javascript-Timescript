@@ -120,96 +120,76 @@ parcelRequire = (function (modules, cache, entry, globalName) {
 })({"src/core/router.ts":[function(require,module,exports) {
 "use strict";
 
-function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it.return != null) it.return(); } finally { if (didErr) throw err; } } }; }
-
-function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
-
-function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
-
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var Router = /*#__PURE__*/function () {
+var Router =
+/** @class */
+function () {
   function Router() {
-    _classCallCheck(this, Router);
-
     window.addEventListener('hashchange', this.route.bind(this));
     this.isStart = false;
     this.defaultRoute = null;
     this.routeTable = [];
   }
 
-  _createClass(Router, [{
-    key: "setDefaultPage",
-    value: function setDefaultPage(page) {
-      var params = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-      this.defaultRoute = {
-        path: '',
-        page: page,
-        params: params
-      };
+  Router.prototype.setDefaultPage = function (page, params) {
+    if (params === void 0) {
+      params = null;
     }
-  }, {
-    key: "addRoutePath",
-    value: function addRoutePath(path, page) {
-      var params = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
-      this.routeTable.push({
-        path: path,
-        page: page,
-        params: params
-      });
 
-      if (!this.isStart) {
-        this.isStart = true; // Execute next tick
+    this.defaultRoute = {
+      path: '',
+      page: page,
+      params: params
+    };
+  };
 
-        setTimeout(this.route.bind(this), 0);
-      }
+  Router.prototype.addRoutePath = function (path, page, params) {
+    if (params === void 0) {
+      params = null;
     }
-  }, {
-    key: "route",
-    value: function route() {
-      var routePath = location.hash;
 
-      if (routePath === '' && this.defaultRoute) {
-        this.defaultRoute.page.render();
+    this.routeTable.push({
+      path: path,
+      page: page,
+      params: params
+    });
+
+    if (!this.isStart) {
+      this.isStart = true; // Execute next tick
+
+      setTimeout(this.route.bind(this), 0);
+    }
+  };
+
+  Router.prototype.route = function () {
+    var routePath = location.hash;
+
+    if (routePath === '' && this.defaultRoute) {
+      this.defaultRoute.page.render();
+      return;
+    }
+
+    for (var _i = 0, _a = this.routeTable; _i < _a.length; _i++) {
+      var routeInfo = _a[_i];
+
+      if (routePath.indexOf(routeInfo.path) >= 0) {
+        if (routeInfo.params) {
+          var parseParams = routePath.match(routeInfo.params);
+
+          if (parseParams) {
+            routeInfo.page.render.apply(null, [parseParams[1]]);
+          }
+        } else {
+          routeInfo.page.render();
+        }
+
         return;
       }
-
-      var _iterator = _createForOfIteratorHelper(this.routeTable),
-          _step;
-
-      try {
-        for (_iterator.s(); !(_step = _iterator.n()).done;) {
-          var routeInfo = _step.value;
-
-          if (routePath.indexOf(routeInfo.path) >= 0) {
-            if (routeInfo.params) {
-              var parseParams = routePath.match(routeInfo.params);
-
-              if (parseParams) {
-                routeInfo.page.render.apply(null, [parseParams[1]]);
-              }
-            } else {
-              routeInfo.page.render();
-            }
-
-            return;
-          }
-        }
-      } catch (err) {
-        _iterator.e(err);
-      } finally {
-        _iterator.f();
-      }
     }
-  }]);
+  };
 
   return Router;
 }();
@@ -218,20 +198,14 @@ exports.default = Router;
 },{}],"src/core/view.ts":[function(require,module,exports) {
 "use strict";
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
-
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var View = /*#__PURE__*/function () {
+var View =
+/** @class */
+function () {
   function View(containerId, template) {
-    _classCallCheck(this, View);
-
     var containerElement = document.getElementById(containerId);
 
     if (!containerElement) {
@@ -244,36 +218,29 @@ var View = /*#__PURE__*/function () {
     this.htmlList = [];
   }
 
-  _createClass(View, [{
-    key: "updateView",
-    value: function updateView() {
-      this.container.innerHTML = this.renderTemplate;
-      this.renderTemplate = this.template; // 초기 값으로 변환
-    }
-  }, {
-    key: "addHtml",
-    value: function addHtml(htmlString) {
-      this.htmlList.push(htmlString);
-    }
-  }, {
-    key: "getHtml",
-    value: function getHtml() {
-      var snapshot = this.htmlList.join('');
-      this.clearHtmlList(); // 초기화
+  View.prototype.updateView = function () {
+    this.container.innerHTML = this.renderTemplate;
+    this.renderTemplate = this.template; // 초기 값으로 변환
+  };
 
-      return snapshot;
-    }
-  }, {
-    key: "setTemplateData",
-    value: function setTemplateData(key, value) {
-      this.renderTemplate = this.renderTemplate.replace("{{__".concat(key, "__}}"), value);
-    }
-  }, {
-    key: "clearHtmlList",
-    value: function clearHtmlList() {
-      this.htmlList = [];
-    }
-  }]);
+  View.prototype.addHtml = function (htmlString) {
+    this.htmlList.push(htmlString);
+  };
+
+  View.prototype.getHtml = function () {
+    var snapshot = this.htmlList.join('');
+    this.clearHtmlList(); // 초기화
+
+    return snapshot;
+  };
+
+  View.prototype.setTemplateData = function (key, value) {
+    this.renderTemplate = this.renderTemplate.replace("{{__" + key + "__}}", value);
+  };
+
+  View.prototype.clearHtmlList = function () {
+    this.htmlList = [];
+  };
 
   return View;
 }();
@@ -282,119 +249,109 @@ exports.default = View;
 },{}],"src/core/api.ts":[function(require,module,exports) {
 "use strict";
 
-function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+var __extends = this && this.__extends || function () {
+  var _extendStatics = function extendStatics(d, b) {
+    _extendStatics = Object.setPrototypeOf || {
+      __proto__: []
+    } instanceof Array && function (d, b) {
+      d.__proto__ = b;
+    } || function (d, b) {
+      for (var p in b) {
+        if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p];
+      }
+    };
 
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+    return _extendStatics(d, b);
+  };
 
-function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+  return function (d, b) {
+    if (typeof b !== "function" && b !== null) throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
 
-function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
+    _extendStatics(d, b);
 
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+    function __() {
+      this.constructor = d;
+    }
 
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-
-function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
-
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+  };
+}();
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.NewsDetailApi = exports.NewsFeedApi = exports.Api = void 0;
 
-var Api = /*#__PURE__*/function () {
+var Api =
+/** @class */
+function () {
   function Api(url) {
-    _classCallCheck(this, Api);
-
     this.xhr = new XMLHttpRequest();
     this.url = url;
   }
 
-  _createClass(Api, [{
-    key: "getRequestWithXHR",
-    value: function getRequestWithXHR(cb) {
-      var _this = this;
+  Api.prototype.getRequestWithXHR = function (cb) {
+    var _this = this;
 
-      this.xhr.open('GET', this.url);
-      this.xhr.addEventListener('load', function () {
-        cb(JSON.parse(_this.xhr.response));
-      });
-      this.xhr.send();
-    }
-  }, {
-    key: "getRequestWithPromise",
-    value: function getRequestWithPromise(cb) {
-      fetch(this.url).then(function (response) {
-        return response.json();
-      }).then(cb).catch(function () {
-        console.log('데이터를 불러오지 못했습니다.');
-      });
-    } //fetch api 
+    this.xhr.open('GET', this.url);
+    this.xhr.addEventListener('load', function () {
+      cb(JSON.parse(_this.xhr.response));
+    });
+    this.xhr.send();
+  };
 
-  }]);
+  Api.prototype.getRequestWithPromise = function (cb) {
+    fetch(this.url).then(function (response) {
+      return response.json();
+    }).then(cb).catch(function () {
+      console.log('데이터를 불러오지 못했습니다.');
+    });
+  }; //fetch api 
+
 
   return Api;
 }();
 
 exports.Api = Api;
 
-var NewsFeedApi = /*#__PURE__*/function (_Api) {
-  _inherits(NewsFeedApi, _Api);
-
-  var _super = _createSuper(NewsFeedApi);
+var NewsFeedApi =
+/** @class */
+function (_super) {
+  __extends(NewsFeedApi, _super);
 
   function NewsFeedApi(url) {
-    _classCallCheck(this, NewsFeedApi);
-
-    return _super.call(this, url);
+    return _super.call(this, url) || this;
   }
 
-  _createClass(NewsFeedApi, [{
-    key: "getDataWithXHR",
-    value: function getDataWithXHR(cb) {
-      return this.getRequestWithXHR(cb);
-    }
-  }, {
-    key: "getDataWithPromise",
-    value: function getDataWithPromise(cb) {
-      return this.getRequestWithPromise(cb);
-    }
-  }]);
+  NewsFeedApi.prototype.getDataWithXHR = function (cb) {
+    return this.getRequestWithXHR(cb);
+  };
+
+  NewsFeedApi.prototype.getDataWithPromise = function (cb) {
+    return this.getRequestWithPromise(cb);
+  };
 
   return NewsFeedApi;
 }(Api);
 
 exports.NewsFeedApi = NewsFeedApi;
 
-var NewsDetailApi = /*#__PURE__*/function (_Api2) {
-  _inherits(NewsDetailApi, _Api2);
-
-  var _super2 = _createSuper(NewsDetailApi);
+var NewsDetailApi =
+/** @class */
+function (_super) {
+  __extends(NewsDetailApi, _super);
 
   function NewsDetailApi(url) {
-    _classCallCheck(this, NewsDetailApi);
-
-    return _super2.call(this, url);
+    return _super.call(this, url) || this;
   }
 
-  _createClass(NewsDetailApi, [{
-    key: "getDataWithXHR",
-    value: function getDataWithXHR(cb) {
-      return this.getRequestWithXHR(cb);
-    }
-  }, {
-    key: "getDataWithPromise",
-    value: function getDataWithPromise(cb) {
-      return this.getRequestWithPromise(cb);
-    }
-  }]);
+  NewsDetailApi.prototype.getDataWithXHR = function (cb) {
+    return this.getRequestWithXHR(cb);
+  };
+
+  NewsDetailApi.prototype.getDataWithPromise = function (cb) {
+    return this.getRequestWithPromise(cb);
+  };
 
   return NewsDetailApi;
 }(Api);
@@ -412,27 +369,33 @@ exports.CONTENT_URL = 'https://api.hnpwa.com/v0/item/@id.json';
 },{}],"src/page/news-detail-views.ts":[function(require,module,exports) {
 "use strict";
 
-function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+var __extends = this && this.__extends || function () {
+  var _extendStatics = function extendStatics(d, b) {
+    _extendStatics = Object.setPrototypeOf || {
+      __proto__: []
+    } instanceof Array && function (d, b) {
+      d.__proto__ = b;
+    } || function (d, b) {
+      for (var p in b) {
+        if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p];
+      }
+    };
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+    return _extendStatics(d, b);
+  };
 
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+  return function (d, b) {
+    if (typeof b !== "function" && b !== null) throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
 
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+    _extendStatics(d, b);
 
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+    function __() {
+      this.constructor = d;
+    }
 
-function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
-
-function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
-
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
-
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-
-function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
-
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+  };
+}();
 
 var __importDefault = this && this.__importDefault || function (mod) {
   return mod && mod.__esModule ? mod : {
@@ -452,17 +415,13 @@ var config_1 = require("../config");
 
 var template = "\n<div class=\"bg-gray-600 min-h-screen pb-8\">\n  <div class=\"bg-white text-xl\">\n    <div class=\"mx-auto px-4\">\n      <div class=\"flex justify-between items-center py-6\">\n        <div class=\"flex justify-start\">\n          <h1 class=\"font-extrabold\">Hacker News</h1>\n        </div>\n        <div class=\"items-center justify-end\">\n          <a href=\"#/page/{{__currentPage__}}\" class=\"text-gray-500\">\n            <i class=\"fa fa-times\"></i>\n          </a>\n        </div>\n      </div>\n    </div>\n  </div>\n\n  <div class=\"h-full border rounded-xl bg-white m-6 p-4 \">\n    <h2>{{__title__}}</h2>\n    <div class=\"text-gray-400 h-20\">\n      {{__content__}}\n    </div>\n    {{__comments__}}\n  </div>\n</div>\n";
 
-var NewsDetailView = /*#__PURE__*/function (_view_1$default) {
-  _inherits(NewsDetailView, _view_1$default);
-
-  var _super = _createSuper(NewsDetailView);
+var NewsDetailView =
+/** @class */
+function (_super) {
+  __extends(NewsDetailView, _super);
 
   function NewsDetailView(containerId, store) {
-    var _this;
-
-    _classCallCheck(this, NewsDetailView);
-
-    _this = _super.call(this, containerId, template);
+    var _this = _super.call(this, containerId, template) || this;
 
     _this.render = function (id) {
       var api = new api_1.NewsDetailApi(config_1.CONTENT_URL.replace('@id', id));
@@ -489,21 +448,18 @@ var NewsDetailView = /*#__PURE__*/function (_view_1$default) {
     return _this;
   }
 
-  _createClass(NewsDetailView, [{
-    key: "makeComment",
-    value: function makeComment(comments) {
-      for (var i = 0; i < comments.length; i++) {
-        var comment = comments[i];
-        this.addHtml("\n        <div style=\"padding-left: ".concat(comment.level * 40, "px;\" class=\"mt-4\">\n          <div class=\"text-gray-400\">\n            <i class=\"fa fa-sort-up mr-2\"></i>\n            <strong>").concat(comment.user, "</strong> ").concat(comment.time_ago, "\n          </div>\n          <p class=\"text-gray-700\">").concat(comment.content, "</p>\n        </div>      \n      "));
+  NewsDetailView.prototype.makeComment = function (comments) {
+    for (var i = 0; i < comments.length; i++) {
+      var comment = comments[i];
+      this.addHtml("\n        <div style=\"padding-left: " + comment.level * 40 + "px;\" class=\"mt-4\">\n          <div class=\"text-gray-400\">\n            <i class=\"fa fa-sort-up mr-2\"></i>\n            <strong>" + comment.user + "</strong> " + comment.time_ago + "\n          </div>\n          <p class=\"text-gray-700\">" + comment.content + "</p>\n        </div>      \n      ");
 
-        if (comment.comments.length > 0) {
-          this.addHtml(this.makeComment(comment.comments));
-        }
+      if (comment.comments.length > 0) {
+        this.addHtml(this.makeComment(comment.comments));
       }
-
-      return this.getHtml();
     }
-  }]);
+
+    return this.getHtml();
+  };
 
   return NewsDetailView;
 }(view_1.default);
@@ -512,23 +468,33 @@ exports.default = NewsDetailView;
 },{"../core/view":"src/core/view.ts","../core/api":"src/core/api.ts","../config":"src/config.ts"}],"src/page/news-feed-view.ts":[function(require,module,exports) {
 "use strict";
 
-function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+var __extends = this && this.__extends || function () {
+  var _extendStatics = function extendStatics(d, b) {
+    _extendStatics = Object.setPrototypeOf || {
+      __proto__: []
+    } instanceof Array && function (d, b) {
+      d.__proto__ = b;
+    } || function (d, b) {
+      for (var p in b) {
+        if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p];
+      }
+    };
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+    return _extendStatics(d, b);
+  };
 
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+  return function (d, b) {
+    if (typeof b !== "function" && b !== null) throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
 
-function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+    _extendStatics(d, b);
 
-function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
+    function __() {
+      this.constructor = d;
+    }
 
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
-
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-
-function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
-
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+  };
+}();
 
 var __importDefault = this && this.__importDefault || function (mod) {
   return mod && mod.__esModule ? mod : {
@@ -548,20 +514,19 @@ var config_1 = require("../config");
 
 var template = "\n<div class=\"bg-gray-600 min-h-screen\">\n  <div class=\"bg-white text-xl\">\n    <div class=\"mx-auto px-4\">\n      <div class=\"flex justify-between items-center py-6\">\n        <div class=\"flex justify-start\">\n          <h1 class=\"font-extrabold\">Hacker News</h1>\n        </div>\n        <div class=\"items-center justify-end\">\n          <a href=\"#/page/{{__prev_page__}}\" class=\"text-gray-500\">\n            Previous\n          </a>\n          <a href=\"#/page/{{__next_page__}}\" class=\"text-gray-500 ml-4\">\n            Next\n          </a>\n        </div>\n      </div> \n    </div>\n  </div>\n  <div class=\"p-4 text-2xl text-gray-700\">\n    {{__news_feed__}}        \n  </div>\n</div>\n";
 
-var NewsFeedView = /*#__PURE__*/function (_view_1$default) {
-  _inherits(NewsFeedView, _view_1$default);
-
-  var _super = _createSuper(NewsFeedView);
+var NewsFeedView =
+/** @class */
+function (_super) {
+  __extends(NewsFeedView, _super);
 
   function NewsFeedView(containerId, store) {
-    var _this;
+    var _this = _super.call(this, containerId, template) || this;
 
-    _classCallCheck(this, NewsFeedView);
+    _this.render = function (page) {
+      if (page === void 0) {
+        page = '1';
+      }
 
-    _this = _super.call(this, containerId, template);
-
-    _this.render = function () {
-      var page = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '1';
       _this.store.currentPage = Number(page);
 
       if (!_this.store.hasFeeds) {
@@ -575,16 +540,16 @@ var NewsFeedView = /*#__PURE__*/function (_view_1$default) {
 
     _this.renderView = function () {
       for (var i = (_this.store.currentPage - 1) * 10; i < _this.store.currentPage * 10; i++) {
-        var _this$store$getFeed = _this.store.getFeed(i),
-            id = _this$store$getFeed.id,
-            title = _this$store$getFeed.title,
-            comments_count = _this$store$getFeed.comments_count,
-            user = _this$store$getFeed.user,
-            points = _this$store$getFeed.points,
-            time_ago = _this$store$getFeed.time_ago,
-            read = _this$store$getFeed.read;
+        var _a = _this.store.getFeed(i),
+            id = _a.id,
+            title = _a.title,
+            comments_count = _a.comments_count,
+            user = _a.user,
+            points = _a.points,
+            time_ago = _a.time_ago,
+            read = _a.read;
 
-        _this.addHtml("\n          <div class=\"p-6 ".concat(read ? 'bg-red-500' : 'bg-white', " mt-6 rounded-lg shadow-md transition-colors duration-500 hover:bg-green-100\">\n            <div class=\"flex\">\n              <div class=\"flex-auto\">\n                <a href=\"#/show/").concat(id, "\">").concat(title, "</a>  \n              </div>\n              <div class=\"text-center text-sm\">\n                <div class=\"w-10 text-white bg-green-300 rounded-lg px-0 py-2\">").concat(comments_count, "</div>\n              </div>\n            </div>\n            <div class=\"flex mt-3\">\n              <div class=\"grid grid-cols-3 text-sm text-gray-500\">\n                <div><i class=\"fas fa-user mr-1\"></i>").concat(user, "</div>\n                <div><i class=\"fas fa-heart mr-1\"></i>").concat(points, "</div>\n                <div><i class=\"far fa-clock mr-1\"></i>").concat(time_ago, "</div>\n              </div>  \n            </div>\n          </div>    \n        "));
+        _this.addHtml("\n          <div class=\"p-6 " + (read ? 'bg-red-500' : 'bg-white') + " mt-6 rounded-lg shadow-md transition-colors duration-500 hover:bg-green-100\">\n            <div class=\"flex\">\n              <div class=\"flex-auto\">\n                <a href=\"#/show/" + id + "\">" + title + "</a>  \n              </div>\n              <div class=\"text-center text-sm\">\n                <div class=\"w-10 text-white bg-green-300 rounded-lg px-0 py-2\">" + comments_count + "</div>\n              </div>\n            </div>\n            <div class=\"flex mt-3\">\n              <div class=\"grid grid-cols-3 text-sm text-gray-500\">\n                <div><i class=\"fas fa-user mr-1\"></i>" + user + "</div>\n                <div><i class=\"fas fa-heart mr-1\"></i>" + points + "</div>\n                <div><i class=\"far fa-clock mr-1\"></i>" + time_ago + "</div>\n              </div>  \n            </div>\n          </div>    \n        ");
       }
 
       _this.setTemplateData('news_feed', _this.getHtml());
@@ -639,86 +604,101 @@ Object.defineProperty(exports, "NewsFeedView", {
 },{"./news-detail-views":"src/page/news-detail-views.ts","./news-feed-view":"src/page/news-feed-view.ts"}],"src/store.ts":[function(require,module,exports) {
 "use strict";
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+var __assign = this && this.__assign || function () {
+  __assign = Object.assign || function (t) {
+    for (var s, i = 1, n = arguments.length; i < n; i++) {
+      s = arguments[i];
 
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+      for (var p in s) {
+        if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
+      }
+    }
 
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+    return t;
+  };
+
+  return __assign.apply(this, arguments);
+};
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.Store = void 0;
 
-var Store = /*#__PURE__*/function () {
+var Store =
+/** @class */
+function () {
   function Store() {
-    _classCallCheck(this, Store);
-
     this.feeds = [];
     this._currentPage = 1;
   }
 
-  _createClass(Store, [{
-    key: "currentPage",
+  Object.defineProperty(Store.prototype, "currentPage", {
     get: function get() {
       return this._currentPage;
     },
     set: function set(page) {
       this._currentPage = page;
-    } // getter와 setter를 이용하면 외부에서 봤을 때 함수가 아닌 속성으로 볼 수 있다.
-
-  }, {
-    key: "nextPage",
+    },
+    enumerable: false,
+    configurable: true
+  });
+  Object.defineProperty(Store.prototype, "nextPage", {
+    // getter와 setter를 이용하면 외부에서 봤을 때 함수가 아닌 속성으로 볼 수 있다.
     get: function get() {
       return this._currentPage + 1; // 다음 페이지로 가야하는 경우 페이지 + 1
-    }
-  }, {
-    key: "prevPage",
+    },
+    enumerable: false,
+    configurable: true
+  });
+  Object.defineProperty(Store.prototype, "prevPage", {
     get: function get() {
       return this._currentPage > 1 ? this._currentPage - 1 : 1; // 이전 페이지로 가야하는 경우 페이지 - 1
-    }
-  }, {
-    key: "numberOfFeed",
+    },
+    enumerable: false,
+    configurable: true
+  });
+  Object.defineProperty(Store.prototype, "numberOfFeed", {
     get: function get() {
       return this.feeds.length;
-    }
-  }, {
-    key: "hasFeeds",
+    },
+    enumerable: false,
+    configurable: true
+  });
+  Object.defineProperty(Store.prototype, "hasFeeds", {
     get: function get() {
       return this.feeds.length > 0;
-    }
-  }, {
-    key: "getAllFeeds",
-    value: function getAllFeeds() {
-      return this.feeds;
-    }
-  }, {
-    key: "getFeed",
-    value: function getFeed(position) {
-      return this.feeds[position];
-    }
-  }, {
-    key: "setFeeds",
-    value: function setFeeds(feeds) {
-      this.feeds = feeds.map(function (feed) {
-        return Object.assign(Object.assign({}, feed), {
-          read: false
-        });
-      });
-    } // 스프레드 오퍼레이터 , map 함수
+    },
+    enumerable: false,
+    configurable: true
+  });
 
-  }, {
-    key: "makeRead",
-    value: function makeRead(id) {
-      var feed = this.feeds.find(function (feed) {
-        return feed.id === id;
-      });
+  Store.prototype.getAllFeeds = function () {
+    return this.feeds;
+  };
 
-      if (feed) {
-        feed.read = true;
-      }
+  Store.prototype.getFeed = function (position) {
+    return this.feeds[position];
+  };
+
+  Store.prototype.setFeeds = function (feeds) {
+    this.feeds = feeds.map(function (feed) {
+      return __assign(__assign({}, feed), {
+        read: false
+      });
+    });
+  }; // 스프레드 오퍼레이터 , map 함수
+
+
+  Store.prototype.makeRead = function (id) {
+    var feed = this.feeds.find(function (feed) {
+      return feed.id === id;
+    });
+
+    if (feed) {
+      feed.read = true;
     }
-  }]);
+  };
 
   return Store;
 }(); //find 함수
@@ -779,7 +759,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "59825" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "63982" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
