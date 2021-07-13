@@ -120,76 +120,96 @@ parcelRequire = (function (modules, cache, entry, globalName) {
 })({"src/core/router.ts":[function(require,module,exports) {
 "use strict";
 
+function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it.return != null) it.return(); } finally { if (didErr) throw err; } } }; }
+
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var Router =
-/** @class */
-function () {
+var Router = /*#__PURE__*/function () {
   function Router() {
+    _classCallCheck(this, Router);
+
     window.addEventListener('hashchange', this.route.bind(this));
     this.isStart = false;
     this.defaultRoute = null;
     this.routeTable = [];
   }
 
-  Router.prototype.setDefaultPage = function (page, params) {
-    if (params === void 0) {
-      params = null;
+  _createClass(Router, [{
+    key: "setDefaultPage",
+    value: function setDefaultPage(page) {
+      var params = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+      this.defaultRoute = {
+        path: '',
+        page: page,
+        params: params
+      };
     }
+  }, {
+    key: "addRoutePath",
+    value: function addRoutePath(path, page) {
+      var params = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
+      this.routeTable.push({
+        path: path,
+        page: page,
+        params: params
+      });
 
-    this.defaultRoute = {
-      path: '',
-      page: page,
-      params: params
-    };
-  };
+      if (!this.isStart) {
+        this.isStart = true; // Execute next tick
 
-  Router.prototype.addRoutePath = function (path, page, params) {
-    if (params === void 0) {
-      params = null;
-    }
-
-    this.routeTable.push({
-      path: path,
-      page: page,
-      params: params
-    });
-
-    if (!this.isStart) {
-      this.isStart = true; // Execute next tick
-
-      setTimeout(this.route.bind(this), 0);
-    }
-  };
-
-  Router.prototype.route = function () {
-    var routePath = location.hash;
-
-    if (routePath === '' && this.defaultRoute) {
-      this.defaultRoute.page.render();
-      return;
-    }
-
-    for (var _i = 0, _a = this.routeTable; _i < _a.length; _i++) {
-      var routeInfo = _a[_i];
-
-      if (routePath.indexOf(routeInfo.path) >= 0) {
-        if (routeInfo.params) {
-          var parseParams = routePath.match(routeInfo.params);
-
-          if (parseParams) {
-            routeInfo.page.render.apply(null, [parseParams[1]]);
-          }
-        } else {
-          routeInfo.page.render();
-        }
-
-        return;
+        setTimeout(this.route.bind(this), 0);
       }
     }
-  };
+  }, {
+    key: "route",
+    value: function route() {
+      var routePath = location.hash;
+
+      if (routePath === '' && this.defaultRoute) {
+        this.defaultRoute.page.render();
+        return;
+      }
+
+      var _iterator = _createForOfIteratorHelper(this.routeTable),
+          _step;
+
+      try {
+        for (_iterator.s(); !(_step = _iterator.n()).done;) {
+          var routeInfo = _step.value;
+
+          if (routePath.indexOf(routeInfo.path) >= 0) {
+            if (routeInfo.params) {
+              var parseParams = routePath.match(routeInfo.params);
+
+              if (parseParams) {
+                routeInfo.page.render.apply(null, [parseParams[1]]);
+              }
+            } else {
+              routeInfo.page.render();
+            }
+
+            return;
+          }
+        }
+      } catch (err) {
+        _iterator.e(err);
+      } finally {
+        _iterator.f();
+      }
+    }
+  }]);
 
   return Router;
 }();
@@ -198,14 +218,20 @@ exports.default = Router;
 },{}],"src/core/view.ts":[function(require,module,exports) {
 "use strict";
 
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var View =
-/** @class */
-function () {
+var View = /*#__PURE__*/function () {
   function View(containerId, template) {
+    _classCallCheck(this, View);
+
     var containerElement = document.getElementById(containerId);
 
     if (!containerElement) {
@@ -218,145 +244,41 @@ function () {
     this.htmlList = [];
   }
 
-  View.prototype.updateView = function () {
-    this.container.innerHTML = this.renderTemplate;
-    this.renderTemplate = this.template; // 초기 값으로 변환
-  };
+  _createClass(View, [{
+    key: "updateView",
+    value: function updateView() {
+      this.container.innerHTML = this.renderTemplate;
+      this.renderTemplate = this.template; // 초기 값으로 변환
+    }
+  }, {
+    key: "addHtml",
+    value: function addHtml(htmlString) {
+      this.htmlList.push(htmlString);
+    }
+  }, {
+    key: "getHtml",
+    value: function getHtml() {
+      var snapshot = this.htmlList.join('');
+      this.clearHtmlList(); // 초기화
 
-  View.prototype.addHtml = function (htmlString) {
-    this.htmlList.push(htmlString);
-  };
-
-  View.prototype.getHtml = function () {
-    var snapshot = this.htmlList.join('');
-    this.clearHtmlList(); // 초기화
-
-    return snapshot;
-  };
-
-  View.prototype.setTemplateData = function (key, value) {
-    this.renderTemplate = this.renderTemplate.replace("{{__" + key + "__}}", value);
-  };
-
-  View.prototype.clearHtmlList = function () {
-    this.htmlList = [];
-  };
+      return snapshot;
+    }
+  }, {
+    key: "setTemplateData",
+    value: function setTemplateData(key, value) {
+      this.renderTemplate = this.renderTemplate.replace("{{__".concat(key, "__}}"), value);
+    }
+  }, {
+    key: "clearHtmlList",
+    value: function clearHtmlList() {
+      this.htmlList = [];
+    }
+  }]);
 
   return View;
 }();
 
 exports.default = View;
-},{}],"src/core/api.ts":[function(require,module,exports) {
-"use strict";
-
-var __extends = this && this.__extends || function () {
-  var _extendStatics = function extendStatics(d, b) {
-    _extendStatics = Object.setPrototypeOf || {
-      __proto__: []
-    } instanceof Array && function (d, b) {
-      d.__proto__ = b;
-    } || function (d, b) {
-      for (var p in b) {
-        if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p];
-      }
-    };
-
-    return _extendStatics(d, b);
-  };
-
-  return function (d, b) {
-    if (typeof b !== "function" && b !== null) throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
-
-    _extendStatics(d, b);
-
-    function __() {
-      this.constructor = d;
-    }
-
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-  };
-}();
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.NewsDetailApi = exports.NewsFeedApi = exports.Api = void 0;
-
-var Api =
-/** @class */
-function () {
-  function Api(url) {
-    this.xhr = new XMLHttpRequest();
-    this.url = url;
-  }
-
-  Api.prototype.getRequestWithXHR = function (cb) {
-    var _this = this;
-
-    this.xhr.open('GET', this.url);
-    this.xhr.addEventListener('load', function () {
-      cb(JSON.parse(_this.xhr.response));
-    });
-    this.xhr.send();
-  };
-
-  Api.prototype.getRequestWithPromise = function (cb) {
-    fetch(this.url).then(function (response) {
-      return response.json();
-    }).then(cb).catch(function () {
-      console.log('데이터를 불러오지 못했습니다.');
-    });
-  }; //fetch api 
-
-
-  return Api;
-}();
-
-exports.Api = Api;
-
-var NewsFeedApi =
-/** @class */
-function (_super) {
-  __extends(NewsFeedApi, _super);
-
-  function NewsFeedApi(url) {
-    return _super.call(this, url) || this;
-  }
-
-  NewsFeedApi.prototype.getDataWithXHR = function (cb) {
-    return this.getRequestWithXHR(cb);
-  };
-
-  NewsFeedApi.prototype.getDataWithPromise = function (cb) {
-    return this.getRequestWithPromise(cb);
-  };
-
-  return NewsFeedApi;
-}(Api);
-
-exports.NewsFeedApi = NewsFeedApi;
-
-var NewsDetailApi =
-/** @class */
-function (_super) {
-  __extends(NewsDetailApi, _super);
-
-  function NewsDetailApi(url) {
-    return _super.call(this, url) || this;
-  }
-
-  NewsDetailApi.prototype.getDataWithXHR = function (cb) {
-    return this.getRequestWithXHR(cb);
-  };
-
-  NewsDetailApi.prototype.getDataWithPromise = function (cb) {
-    return this.getRequestWithPromise(cb);
-  };
-
-  return NewsDetailApi;
-}(Api);
-
-exports.NewsDetailApi = NewsDetailApi;
 },{}],"src/config.ts":[function(require,module,exports) {
 "use strict";
 
@@ -366,36 +288,240 @@ Object.defineProperty(exports, "__esModule", {
 exports.CONTENT_URL = exports.NEWS_URL = void 0;
 exports.NEWS_URL = 'https://api.hnpwa.com/v0/news/1.json';
 exports.CONTENT_URL = 'https://api.hnpwa.com/v0/item/@id.json';
-},{}],"src/page/news-detail-views.ts":[function(require,module,exports) {
+},{}],"src/core/api.ts":[function(require,module,exports) {
 "use strict";
 
-var __extends = this && this.__extends || function () {
-  var _extendStatics = function extendStatics(d, b) {
-    _extendStatics = Object.setPrototypeOf || {
-      __proto__: []
-    } instanceof Array && function (d, b) {
-      d.__proto__ = b;
-    } || function (d, b) {
-      for (var p in b) {
-        if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p];
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+var __awaiter = this && this.__awaiter || function (thisArg, _arguments, P, generator) {
+  function adopt(value) {
+    return value instanceof P ? value : new P(function (resolve) {
+      resolve(value);
+    });
+  }
+
+  return new (P || (P = Promise))(function (resolve, reject) {
+    function fulfilled(value) {
+      try {
+        step(generator.next(value));
+      } catch (e) {
+        reject(e);
       }
-    };
-
-    return _extendStatics(d, b);
-  };
-
-  return function (d, b) {
-    if (typeof b !== "function" && b !== null) throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
-
-    _extendStatics(d, b);
-
-    function __() {
-      this.constructor = d;
     }
 
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-  };
+    function rejected(value) {
+      try {
+        step(generator["throw"](value));
+      } catch (e) {
+        reject(e);
+      }
+    }
+
+    function step(result) {
+      result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected);
+    }
+
+    step((generator = generator.apply(thisArg, _arguments || [])).next());
+  });
+};
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.NewsDetailApi = exports.NewsFeedApi = void 0;
+
+var config_1 = require("../config");
+
+var Api = /*#__PURE__*/function () {
+  function Api(url) {
+    _classCallCheck(this, Api);
+
+    this.url = url;
+  }
+
+  _createClass(Api, [{
+    key: "request",
+    value: function request() {
+      return __awaiter(this, void 0, void 0, /*#__PURE__*/regeneratorRuntime.mark(function _callee() {
+        var response;
+        return regeneratorRuntime.wrap(function _callee$(_context) {
+          while (1) {
+            switch (_context.prev = _context.next) {
+              case 0:
+                _context.next = 2;
+                return fetch(this.url);
+
+              case 2:
+                response = _context.sent;
+                _context.next = 5;
+                return response.json();
+
+              case 5:
+                return _context.abrupt("return", _context.sent);
+
+              case 6:
+              case "end":
+                return _context.stop();
+            }
+          }
+        }, _callee, this);
+      }));
+    } //비동기 함수로 변환하기위해 async사용
+
+  }]);
+
+  return Api;
 }();
+
+exports.default = Api;
+
+var NewsFeedApi = /*#__PURE__*/function (_Api) {
+  _inherits(NewsFeedApi, _Api);
+
+  var _super = _createSuper(NewsFeedApi);
+
+  function NewsFeedApi() {
+    _classCallCheck(this, NewsFeedApi);
+
+    return _super.call(this, config_1.NEWS_URL);
+  }
+
+  _createClass(NewsFeedApi, [{
+    key: "getData",
+    value: function getData() {
+      return __awaiter(this, void 0, void 0, /*#__PURE__*/regeneratorRuntime.mark(function _callee2() {
+        return regeneratorRuntime.wrap(function _callee2$(_context2) {
+          while (1) {
+            switch (_context2.prev = _context2.next) {
+              case 0:
+                return _context2.abrupt("return", this.request());
+
+              case 1:
+              case "end":
+                return _context2.stop();
+            }
+          }
+        }, _callee2, this);
+      }));
+    }
+  }]);
+
+  return NewsFeedApi;
+}(Api);
+
+exports.NewsFeedApi = NewsFeedApi;
+
+var NewsDetailApi = /*#__PURE__*/function (_Api2) {
+  _inherits(NewsDetailApi, _Api2);
+
+  var _super2 = _createSuper(NewsDetailApi);
+
+  function NewsDetailApi(id) {
+    _classCallCheck(this, NewsDetailApi);
+
+    return _super2.call(this, config_1.CONTENT_URL.replace('@id', id));
+  }
+
+  _createClass(NewsDetailApi, [{
+    key: "getData",
+    value: function getData() {
+      return __awaiter(this, void 0, void 0, /*#__PURE__*/regeneratorRuntime.mark(function _callee3() {
+        return regeneratorRuntime.wrap(function _callee3$(_context3) {
+          while (1) {
+            switch (_context3.prev = _context3.next) {
+              case 0:
+                return _context3.abrupt("return", this.request());
+
+              case 1:
+              case "end":
+                return _context3.stop();
+            }
+          }
+        }, _callee3, this);
+      }));
+    }
+  }]);
+
+  return NewsDetailApi;
+}(Api);
+
+exports.NewsDetailApi = NewsDetailApi;
+},{"../config":"src/config.ts"}],"src/page/news-detail-views.ts":[function(require,module,exports) {
+"use strict";
+
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+var __awaiter = this && this.__awaiter || function (thisArg, _arguments, P, generator) {
+  function adopt(value) {
+    return value instanceof P ? value : new P(function (resolve) {
+      resolve(value);
+    });
+  }
+
+  return new (P || (P = Promise))(function (resolve, reject) {
+    function fulfilled(value) {
+      try {
+        step(generator.next(value));
+      } catch (e) {
+        reject(e);
+      }
+    }
+
+    function rejected(value) {
+      try {
+        step(generator["throw"](value));
+      } catch (e) {
+        reject(e);
+      }
+    }
+
+    function step(result) {
+      result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected);
+    }
+
+    step((generator = generator.apply(thisArg, _arguments || [])).next());
+  });
+};
 
 var __importDefault = this && this.__importDefault || function (mod) {
   return mod && mod.__esModule ? mod : {
@@ -415,51 +541,70 @@ var config_1 = require("../config");
 
 var template = "\n<div class=\"bg-gray-600 min-h-screen pb-8\">\n  <div class=\"bg-white text-xl\">\n    <div class=\"mx-auto px-4\">\n      <div class=\"flex justify-between items-center py-6\">\n        <div class=\"flex justify-start\">\n          <h1 class=\"font-extrabold\">Hacker News</h1>\n        </div>\n        <div class=\"items-center justify-end\">\n          <a href=\"#/page/{{__currentPage__}}\" class=\"text-gray-500\">\n            <i class=\"fa fa-times\"></i>\n          </a>\n        </div>\n      </div>\n    </div>\n  </div>\n\n  <div class=\"h-full border rounded-xl bg-white m-6 p-4 \">\n    <h2>{{__title__}}</h2>\n    <div class=\"text-gray-400 h-20\">\n      {{__content__}}\n    </div>\n    {{__comments__}}\n  </div>\n</div>\n";
 
-var NewsDetailView =
-/** @class */
-function (_super) {
-  __extends(NewsDetailView, _super);
+var NewsDetailView = /*#__PURE__*/function (_view_1$default) {
+  _inherits(NewsDetailView, _view_1$default);
+
+  var _super = _createSuper(NewsDetailView);
 
   function NewsDetailView(containerId, store) {
-    var _this = _super.call(this, containerId, template) || this;
+    var _this;
+
+    _classCallCheck(this, NewsDetailView);
+
+    _this = _super.call(this, containerId, template);
 
     _this.render = function (id) {
-      var api = new api_1.NewsDetailApi(config_1.CONTENT_URL.replace('@id', id));
-      api.getDataWithPromise(function (data) {
-        var title = data.title,
-            content = data.content,
-            comments = data.comments;
+      return __awaiter(_assertThisInitialized(_this), void 0, void 0, /*#__PURE__*/regeneratorRuntime.mark(function _callee() {
+        var api, _yield$api$getData, title, content, comments;
 
-        _this.store.makeRead(Number(id));
+        return regeneratorRuntime.wrap(function _callee$(_context) {
+          while (1) {
+            switch (_context.prev = _context.next) {
+              case 0:
+                api = new api_1.NewsDetailApi(config_1.CONTENT_URL.replace('@id', id));
+                _context.next = 3;
+                return api.getData();
 
-        _this.setTemplateData('currentPage', _this.store.currentPage.toString());
+              case 3:
+                _yield$api$getData = _context.sent;
+                title = _yield$api$getData.title;
+                content = _yield$api$getData.content;
+                comments = _yield$api$getData.comments;
+                this.store.makeRead(Number(id));
+                this.setTemplateData('currentPage', this.store.currentPage.toString());
+                this.setTemplateData('title', title);
+                this.setTemplateData('content', content);
+                this.setTemplateData('comments', this.makeComment(comments));
+                this.updateView();
 
-        _this.setTemplateData('title', title);
-
-        _this.setTemplateData('content', content);
-
-        _this.setTemplateData('comments', _this.makeComment(comments));
-
-        _this.updateView();
-      });
+              case 13:
+              case "end":
+                return _context.stop();
+            }
+          }
+        }, _callee, this);
+      }));
     };
 
     _this.store = store;
     return _this;
   }
 
-  NewsDetailView.prototype.makeComment = function (comments) {
-    for (var i = 0; i < comments.length; i++) {
-      var comment = comments[i];
-      this.addHtml("\n        <div style=\"padding-left: " + comment.level * 40 + "px;\" class=\"mt-4\">\n          <div class=\"text-gray-400\">\n            <i class=\"fa fa-sort-up mr-2\"></i>\n            <strong>" + comment.user + "</strong> " + comment.time_ago + "\n          </div>\n          <p class=\"text-gray-700\">" + comment.content + "</p>\n        </div>      \n      ");
+  _createClass(NewsDetailView, [{
+    key: "makeComment",
+    value: function makeComment(comments) {
+      for (var i = 0; i < comments.length; i++) {
+        var comment = comments[i];
+        this.addHtml("\n        <div style=\"padding-left: ".concat(comment.level * 40, "px;\" class=\"mt-4\">\n          <div class=\"text-gray-400\">\n            <i class=\"fa fa-sort-up mr-2\"></i>\n            <strong>").concat(comment.user, "</strong> ").concat(comment.time_ago, "\n          </div>\n          <p class=\"text-gray-700\">").concat(comment.content, "</p>\n        </div>      \n      "));
 
-      if (comment.comments.length > 0) {
-        this.addHtml(this.makeComment(comment.comments));
+        if (comment.comments.length > 0) {
+          this.addHtml(this.makeComment(comment.comments));
+        }
       }
-    }
 
-    return this.getHtml();
-  };
+      return this.getHtml();
+    }
+  }]);
 
   return NewsDetailView;
 }(view_1.default);
@@ -468,33 +613,55 @@ exports.default = NewsDetailView;
 },{"../core/view":"src/core/view.ts","../core/api":"src/core/api.ts","../config":"src/config.ts"}],"src/page/news-feed-view.ts":[function(require,module,exports) {
 "use strict";
 
-var __extends = this && this.__extends || function () {
-  var _extendStatics = function extendStatics(d, b) {
-    _extendStatics = Object.setPrototypeOf || {
-      __proto__: []
-    } instanceof Array && function (d, b) {
-      d.__proto__ = b;
-    } || function (d, b) {
-      for (var p in b) {
-        if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p];
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+var __awaiter = this && this.__awaiter || function (thisArg, _arguments, P, generator) {
+  function adopt(value) {
+    return value instanceof P ? value : new P(function (resolve) {
+      resolve(value);
+    });
+  }
+
+  return new (P || (P = Promise))(function (resolve, reject) {
+    function fulfilled(value) {
+      try {
+        step(generator.next(value));
+      } catch (e) {
+        reject(e);
       }
-    };
-
-    return _extendStatics(d, b);
-  };
-
-  return function (d, b) {
-    if (typeof b !== "function" && b !== null) throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
-
-    _extendStatics(d, b);
-
-    function __() {
-      this.constructor = d;
     }
 
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-  };
-}();
+    function rejected(value) {
+      try {
+        step(generator["throw"](value));
+      } catch (e) {
+        reject(e);
+      }
+    }
+
+    function step(result) {
+      result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected);
+    }
+
+    step((generator = generator.apply(thisArg, _arguments || [])).next());
+  });
+};
 
 var __importDefault = this && this.__importDefault || function (mod) {
   return mod && mod.__esModule ? mod : {
@@ -510,59 +677,67 @@ var view_1 = __importDefault(require("../core/view"));
 
 var api_1 = require("../core/api");
 
-var config_1 = require("../config");
-
 var template = "\n<div class=\"bg-gray-600 min-h-screen\">\n  <div class=\"bg-white text-xl\">\n    <div class=\"mx-auto px-4\">\n      <div class=\"flex justify-between items-center py-6\">\n        <div class=\"flex justify-start\">\n          <h1 class=\"font-extrabold\">Hacker News</h1>\n        </div>\n        <div class=\"items-center justify-end\">\n          <a href=\"#/page/{{__prev_page__}}\" class=\"text-gray-500\">\n            Previous\n          </a>\n          <a href=\"#/page/{{__next_page__}}\" class=\"text-gray-500 ml-4\">\n            Next\n          </a>\n        </div>\n      </div> \n    </div>\n  </div>\n  <div class=\"p-4 text-2xl text-gray-700\">\n    {{__news_feed__}}        \n  </div>\n</div>\n";
 
-var NewsFeedView =
-/** @class */
-function (_super) {
-  __extends(NewsFeedView, _super);
+var NewsFeedView = /*#__PURE__*/function (_view_1$default) {
+  _inherits(NewsFeedView, _view_1$default);
+
+  var _super = _createSuper(NewsFeedView);
 
   function NewsFeedView(containerId, store) {
-    var _this = _super.call(this, containerId, template) || this;
+    var _this;
 
-    _this.render = function (page) {
-      if (page === void 0) {
-        page = '1';
-      }
+    _classCallCheck(this, NewsFeedView);
 
-      _this.store.currentPage = Number(page);
+    _this = _super.call(this, containerId, template);
 
-      if (!_this.store.hasFeeds) {
-        _this.api.getDataWithPromise(function (feeds) {
-          _this.store.setFeeds(feeds);
+    _this.render = function () {
+      var page = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '1';
+      return __awaiter(_assertThisInitialized(_this), void 0, void 0, /*#__PURE__*/regeneratorRuntime.mark(function _callee() {
+        var i, _this$store$getFeed, id, title, comments_count, user, points, time_ago, read;
 
-          _this.renderView();
-        });
-      }
-    };
+        return regeneratorRuntime.wrap(function _callee$(_context) {
+          while (1) {
+            switch (_context.prev = _context.next) {
+              case 0:
+                this.store.currentPage = Number(page);
 
-    _this.renderView = function () {
-      for (var i = (_this.store.currentPage - 1) * 10; i < _this.store.currentPage * 10; i++) {
-        var _a = _this.store.getFeed(i),
-            id = _a.id,
-            title = _a.title,
-            comments_count = _a.comments_count,
-            user = _a.user,
-            points = _a.points,
-            time_ago = _a.time_ago,
-            read = _a.read;
+                if (this.store.hasFeeds) {
+                  _context.next = 7;
+                  break;
+                }
 
-        _this.addHtml("\n          <div class=\"p-6 " + (read ? 'bg-red-500' : 'bg-white') + " mt-6 rounded-lg shadow-md transition-colors duration-500 hover:bg-green-100\">\n            <div class=\"flex\">\n              <div class=\"flex-auto\">\n                <a href=\"#/show/" + id + "\">" + title + "</a>  \n              </div>\n              <div class=\"text-center text-sm\">\n                <div class=\"w-10 text-white bg-green-300 rounded-lg px-0 py-2\">" + comments_count + "</div>\n              </div>\n            </div>\n            <div class=\"flex mt-3\">\n              <div class=\"grid grid-cols-3 text-sm text-gray-500\">\n                <div><i class=\"fas fa-user mr-1\"></i>" + user + "</div>\n                <div><i class=\"fas fa-heart mr-1\"></i>" + points + "</div>\n                <div><i class=\"far fa-clock mr-1\"></i>" + time_ago + "</div>\n              </div>  \n            </div>\n          </div>    \n        ");
-      }
+                _context.t0 = this.store;
+                _context.next = 5;
+                return this.api.getData();
 
-      _this.setTemplateData('news_feed', _this.getHtml());
+              case 5:
+                _context.t1 = _context.sent;
 
-      _this.setTemplateData('prev_page', String(_this.store.prevPage));
+                _context.t0.setFeeds.call(_context.t0, _context.t1);
 
-      _this.setTemplateData('next_page', String(_this.store.nextPage));
+              case 7:
+                for (i = (this.store.currentPage - 1) * 10; i < this.store.currentPage * 10; i++) {
+                  _this$store$getFeed = this.store.getFeed(i), id = _this$store$getFeed.id, title = _this$store$getFeed.title, comments_count = _this$store$getFeed.comments_count, user = _this$store$getFeed.user, points = _this$store$getFeed.points, time_ago = _this$store$getFeed.time_ago, read = _this$store$getFeed.read;
+                  this.addHtml("\n        <div class=\"p-6 ".concat(read ? 'bg-red-500' : 'bg-white', " mt-6 rounded-lg shadow-md transition-colors duration-500 hover:bg-green-100\">\n          <div class=\"flex\">\n            <div class=\"flex-auto\">\n              <a href=\"#/show/").concat(id, "\">").concat(title, "</a>  \n            </div>\n            <div class=\"text-center text-sm\">\n              <div class=\"w-10 text-white bg-green-300 rounded-lg px-0 py-2\">").concat(comments_count, "</div>\n            </div>\n          </div>\n          <div class=\"flex mt-3\">\n            <div class=\"grid grid-cols-3 text-sm text-gray-500\">\n              <div><i class=\"fas fa-user mr-1\"></i>").concat(user, "</div>\n              <div><i class=\"fas fa-heart mr-1\"></i>").concat(points, "</div>\n              <div><i class=\"far fa-clock mr-1\"></i>").concat(time_ago, "</div>\n            </div>  \n          </div>\n        </div>    \n      "));
+                }
 
-      _this.updateView();
+                this.setTemplateData('news_feed', this.getHtml());
+                this.setTemplateData('prev_page', String(this.store.prevPage));
+                this.setTemplateData('next_page', String(this.store.nextPage));
+                this.updateView();
+
+              case 12:
+              case "end":
+                return _context.stop();
+            }
+          }
+        }, _callee, this);
+      }));
     };
 
     _this.store = store;
-    _this.api = new api_1.NewsFeedApi(config_1.NEWS_URL);
+    _this.api = new api_1.NewsFeedApi();
     return _this;
   }
 
@@ -570,7 +745,7 @@ function (_super) {
 }(view_1.default);
 
 exports.default = NewsFeedView;
-},{"../core/view":"src/core/view.ts","../core/api":"src/core/api.ts","../config":"src/config.ts"}],"src/page/index.ts":[function(require,module,exports) {
+},{"../core/view":"src/core/view.ts","../core/api":"src/core/api.ts"}],"src/page/index.ts":[function(require,module,exports) {
 "use strict";
 
 var __importDefault = this && this.__importDefault || function (mod) {
@@ -604,101 +779,86 @@ Object.defineProperty(exports, "NewsFeedView", {
 },{"./news-detail-views":"src/page/news-detail-views.ts","./news-feed-view":"src/page/news-feed-view.ts"}],"src/store.ts":[function(require,module,exports) {
 "use strict";
 
-var __assign = this && this.__assign || function () {
-  __assign = Object.assign || function (t) {
-    for (var s, i = 1, n = arguments.length; i < n; i++) {
-      s = arguments[i];
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-      for (var p in s) {
-        if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
-      }
-    }
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
 
-    return t;
-  };
-
-  return __assign.apply(this, arguments);
-};
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.Store = void 0;
 
-var Store =
-/** @class */
-function () {
+var Store = /*#__PURE__*/function () {
   function Store() {
+    _classCallCheck(this, Store);
+
     this.feeds = [];
     this._currentPage = 1;
   }
 
-  Object.defineProperty(Store.prototype, "currentPage", {
+  _createClass(Store, [{
+    key: "currentPage",
     get: function get() {
       return this._currentPage;
     },
     set: function set(page) {
       this._currentPage = page;
-    },
-    enumerable: false,
-    configurable: true
-  });
-  Object.defineProperty(Store.prototype, "nextPage", {
-    // getter와 setter를 이용하면 외부에서 봤을 때 함수가 아닌 속성으로 볼 수 있다.
+    } // getter와 setter를 이용하면 외부에서 봤을 때 함수가 아닌 속성으로 볼 수 있다.
+
+  }, {
+    key: "nextPage",
     get: function get() {
       return this._currentPage + 1; // 다음 페이지로 가야하는 경우 페이지 + 1
-    },
-    enumerable: false,
-    configurable: true
-  });
-  Object.defineProperty(Store.prototype, "prevPage", {
+    }
+  }, {
+    key: "prevPage",
     get: function get() {
       return this._currentPage > 1 ? this._currentPage - 1 : 1; // 이전 페이지로 가야하는 경우 페이지 - 1
-    },
-    enumerable: false,
-    configurable: true
-  });
-  Object.defineProperty(Store.prototype, "numberOfFeed", {
+    }
+  }, {
+    key: "numberOfFeed",
     get: function get() {
       return this.feeds.length;
-    },
-    enumerable: false,
-    configurable: true
-  });
-  Object.defineProperty(Store.prototype, "hasFeeds", {
+    }
+  }, {
+    key: "hasFeeds",
     get: function get() {
       return this.feeds.length > 0;
-    },
-    enumerable: false,
-    configurable: true
-  });
-
-  Store.prototype.getAllFeeds = function () {
-    return this.feeds;
-  };
-
-  Store.prototype.getFeed = function (position) {
-    return this.feeds[position];
-  };
-
-  Store.prototype.setFeeds = function (feeds) {
-    this.feeds = feeds.map(function (feed) {
-      return __assign(__assign({}, feed), {
-        read: false
-      });
-    });
-  }; // 스프레드 오퍼레이터 , map 함수
-
-
-  Store.prototype.makeRead = function (id) {
-    var feed = this.feeds.find(function (feed) {
-      return feed.id === id;
-    });
-
-    if (feed) {
-      feed.read = true;
     }
-  };
+  }, {
+    key: "getAllFeeds",
+    value: function getAllFeeds() {
+      return this.feeds;
+    }
+  }, {
+    key: "getFeed",
+    value: function getFeed(position) {
+      return this.feeds[position];
+    }
+  }, {
+    key: "setFeeds",
+    value: function setFeeds(feeds) {
+      this.feeds = feeds.map(function (feed) {
+        return Object.assign(Object.assign({}, feed), {
+          read: false
+        });
+      });
+    } // 스프레드 오퍼레이터 , map 함수
+
+  }, {
+    key: "makeRead",
+    value: function makeRead(id) {
+      var feed = this.feeds.find(function (feed) {
+        return feed.id === id;
+      });
+
+      if (feed) {
+        feed.read = true;
+      }
+    }
+  }]);
 
   return Store;
 }(); //find 함수
@@ -759,7 +919,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "63982" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "64222" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
