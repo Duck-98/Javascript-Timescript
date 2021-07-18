@@ -7,7 +7,7 @@ function myFn(x){
     return  x + 100;
 } // 함수를 만들 때 가변인자(arguments)를 통해 인자가 없는 경우, 인자가 여러 개 들어오는 경우를 설계해놔야함.
 
-function sum(a,b...args){ // ... -> 몇 개가 들어올지 모른다는 의미. args = arguments(arguments 전개 파라미터)
+function sum(a,b,...args){ // ... -> 몇 개가 들어올지 모른다는 의미. args = arguments(arguments 전개 파라미터)
     let s = 0; // 인자값  a,b는 필수 값이며 그 뒤는 줘도 되고 안줘도 된다.
     for(let i = 0; i < arguments.length; i++){
         s = s+ arguments[i];
@@ -49,8 +49,8 @@ const ten = x => 100 + x;
 
 // generator(생성기) 함수
 function* gen(){
-  yfield 10;
-  yfield 20;
+  yield 10;
+  yield 20;
   return 30;  
 }
 // 어려운 개념) 한 줄 실행하고 나가고 다음줄 실행하고 나가고를 반복.
