@@ -13,16 +13,17 @@ function delay(ms: number): Promise<string>{
 delay(3000)
     .then((result:string) => {
         console.log('done promise!' + result);
-    })
+    }) // 콜백함수
     .catch((error :string) =>{
         console.error('fail promise!' + error);
-    });
+    }); // 실패 시 처리
 
-async function main(){
+async function main(){ 
     try{
-        const result = await delay(3000);
-        console.error('done async!' + result);
-    } catch(e) {
+        console.log('start job');
+        const result = await delay(3000); // 기존의 then, catch를 쓸 필요 없이 promise를 반환하는 함수 앞에 await을 붙여준다.
+        console.log('done async!' + result);
+    } catch(e) { //error은 catch구문으로 처리하면 됨.
         console.error('fail async!' + e);
     }
 }
