@@ -12,7 +12,7 @@ function foo(a?: number | null){
     if(a === null)return;
 
     console.log('display before');
-    console.log(a?.valueOf()); ///a가 null이면  undefined로 변함
+    console.log(a?.valueOf()); ///a가 null이면  undefined로 변함 그렇기때문에 타입가드를 이용하여 리턴할 수 있게 해줘야힘.
     console.log('display after');
 }
 
