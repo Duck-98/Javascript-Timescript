@@ -24,7 +24,7 @@ const groupInfo = {
 };
 
 function makeGroup(source, info){
-    const merge = (a,b) => ({...a, ...b});
+    const merge = (a,b) => ({...a, ...b}); // reduce 함수
     return Object.keys(info)
     .map(group => ({ [group] : info[group]
         .map(k => ({ [k] : source[k]}))
