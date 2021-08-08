@@ -4,16 +4,14 @@
     // 자세한 내용을 보려면 https://go.microsoft.com/fwlink/?linkid=830387을(를) 방문하세요.
     "version": "0.2.0",
     "configurations": [
-    
-    
         {
-            "type": "pwa-node",
+            "type": "pwa-chrome",
             "request": "launch",
             "name": "Launch Program",
-            "skipFiles": [
-                "<node_internals>/**"
-            ],
-            "program": "${workspaceFolder}/학습 정리/6.4 변수와 상수/app.js"
+            "preLaunchTask": "parcel webapp",
+            "url": "http://localhost:1234",
+            "webRoot": "${workspaceFolder}/dist"
         }
+        
     ]
 }
