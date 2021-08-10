@@ -7,7 +7,7 @@ export default class App {
   template = template;
   data: AnyObject;
   container: HTMLElement;
-  fields: AnyObject[];
+  fields: AnyObject[]; // fields => initialize
   active: boolean = false;
 
   constructor(container: string, data: AnyObject = {}) {

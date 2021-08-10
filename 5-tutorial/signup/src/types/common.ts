@@ -3,7 +3,7 @@ export type AnyObject = {
 }
 
 export type ValidateRule = {
-  rule: RegExp;
+  rule: RegExp; //정규식
   match: boolean;
   message: string;
 }

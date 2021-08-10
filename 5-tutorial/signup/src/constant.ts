@@ -1,5 +1,5 @@
 import { ValidateRule } from "./types";
-
+// 정규식
 export const RequireRule: ValidateRule = {
   rule: /.+/,
   match: true,
