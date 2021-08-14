@@ -19,10 +19,10 @@ type Props = {
   strong?: StrongLevel;
 }
 
-const StrongMessage: [string, string, string, string] = [
+const StrongMessage: [string, string, string, string] = [ //튜플
   '금지된 수준',
   '심각한 수준',
-  '보통 수준',
+  '보통 수준', 
   '강력한 암호',
 ];
 
