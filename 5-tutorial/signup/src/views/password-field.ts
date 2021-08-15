@@ -3,7 +3,7 @@ import { ValidateRule } from '../types';
 import template from './password-field.template';
 import { RequireRule } from '../constant';
 
-enum StrongLevel {
+enum StrongLevel { // enum -> ㅇ=
   None = 0,
   Light,
   Medium,
@@ -19,7 +19,7 @@ type Props = {
   strong?: StrongLevel;
 }
 
-const StrongMessage: [string, string, string, string] = [ //튜플
+const StrongMessage: string[] = [ //튜플
   '금지된 수준',
   '심각한 수준',
   '보통 수준', 

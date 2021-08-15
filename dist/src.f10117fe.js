@@ -224,7 +224,8 @@ function () {
         container.appendChild(divFragment.firstElementChild);
       } else {
         container.innerHTML = _this.template(__assign({}, _this.data));
-      }
+      } // 다음 주소 검색 API 코드
+
 
       (_a = container.querySelector("#search-address")) === null || _a === void 0 ? void 0 : _a.addEventListener('click', function () {
         new window.daum.Postcode({
@@ -409,10 +410,12 @@ function () {
       var container = document.querySelector(_this.container);
 
       if (append) {
+        // append -> true
         var divFragment = document.createElement('div');
         divFragment.innerHTML = _this.template(_this.buildData());
         container.appendChild(divFragment.children[0]);
       } else {
+        // append -> false 
         container.innerHTML = _this.template(_this.buildData());
       }
     };

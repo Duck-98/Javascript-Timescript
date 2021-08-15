@@ -57,7 +57,7 @@ export default class AddressField {
         ...this.data, 
         });
     }
-
+  // 다음 주소 검색 API 코드
     container.querySelector(`#search-address`)?.addEventListener('click', () => {
       new window.daum.Postcode({
         oncomplete: (data: DaumAddress) => {

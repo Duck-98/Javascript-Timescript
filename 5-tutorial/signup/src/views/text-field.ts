@@ -109,12 +109,12 @@ export default class TextField {
   public render = (append: boolean = false) => {
     const container = document.querySelector(this.container) as HTMLElement;
 
-    if (append) {
+    if (append) { // append -> true
       const divFragment = document.createElement('div');
       divFragment.innerHTML = this.template(this.buildData());
 
       container.appendChild(divFragment.children[0]);
-    } else {
+    } else { // append -> false 
       container.innerHTML = this.template(this.buildData());
     }
   }
